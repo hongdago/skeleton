@@ -1,14 +1,13 @@
 package com.cfm.bankinterface;
 
-import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
-import org.apache.commons.validator.ValidatorResults;
 import org.apache.velocity.VelocityContext;
 
+import com.cfm.bankinterface.exception.ValidateException;
 import com.cfm.bankinterface.util.FrameworkProperties;
+import com.cfm.bankinterface.util.PrintUtil;
 
 
 
@@ -24,26 +23,9 @@ public abstract class RequestObj {
 	protected String operType; 
 	
 	/**
-	 * 根据类名获取具体银行类型，子类名称采用"银行类型_操作类型"命名
-	 * @return
+	 * 请求对象编码
 	 */
-	public  String getBankType(){
-		String cls_name = this.getClass().getSimpleName();
-		String[] names = cls_name.split("_");
-		return names.length == 2?names[0]:"";
-		
-	}
-	
-	/**
-	 * 根据类名获取具体操作，子类名称采用"银行类型_操作类型"命名
-	 * @return
-	 */
-	public String getOperType(){
-		String cls_name = this.getClass().getSimpleName();
-		String[] names = cls_name.split("_");
-		return names.length == 2?names[1]:"";
-	}
-	
+	protected String encoding = "GBK";
 	
 	/**
 	 * 构造方法
@@ -55,11 +37,46 @@ public abstract class RequestObj {
 	
 	
 	/**
+	 * 根据类名获取具体银行类型，子类名称采用"银行类型_操作类型"命名
+	 * @return
+	 */
+	public  String getBankType(){
+		String cls_name = this.getClass().getSimpleName();
+		int split_index= cls_name.indexOf("_");
+		if(split_index > 0){
+			return cls_name.substring(0, split_index);
+		}
+		return cls_name;
+		
+	}
+	
+	/**
+	 * 根据类名获取具体操作，子类名称采用"银行类型_操作类型"命名
+	 * @return
+	 */
+	public String getOperType(){
+		String cls_name = this.getClass().getSimpleName();
+		int split_index= cls_name.indexOf("_");
+		if(split_index > 0){
+			return cls_name.substring(split_index+1);
+		}
+		return cls_name;
+	}
+	
+	protected String getEncoding() {
+		return encoding;
+	}
+
+	protected void setEncoding(String encoding) {
+		this.encoding = encoding;
+	}
+
+	/**
 	 * 获取生成XML的模版路径
 	 * @return
 	 */
 	protected  String getTemplatePath(){
-		return bankType+File.separator+operType+".vm";
+		return bankType+File.separator+bankType+"_"+operType+".vm";
 	}
 	
 	
@@ -72,12 +89,19 @@ public abstract class RequestObj {
 		ctx.put("system", FrameworkProperties.getInstance());
 	}
 	
-	protected  boolean getvalidate(){
+	protected  boolean getvalidate() throws ValidateException{
 		ValidatorGroup toolGroup = ValidatorGroup.getInstance();
-		ValidatorTools validator = toolGroup.getValidator(bankType, operType);
+		ValidatorTool validator = toolGroup.getValidator(bankType, operType);
 		return validator.getValidatorResult(this);
 	} 
+	
+	
 
+
+	@Override
+	public String toString() {
+		return PrintUtil.objToString(this);
+	}
 
 	/**
 	 * 
@@ -89,13 +113,8 @@ public abstract class RequestObj {
 		Field[] fields = cl.getDeclaredFields();
 		try{
 			for(Field field:fields){
-				Class fieldClass = field.getType();
-				if(fieldClass.getName().startsWith("java.lang") || fieldClass.getName().startsWith("java.util")
-						||fieldClass.getName().startsWith("[L"+cl.getName())){
-					PropertyDescriptor pd = new PropertyDescriptor(field.getName(), cl);  
-					Method method = pd.getReadMethod();
-					ctx.put(field.getName(), method.invoke(this));
-				}
+				field.setAccessible(true);
+				ctx.put(field.getName(), field.get(this));
 			}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -107,22 +126,41 @@ public abstract class RequestObj {
 	/**
 	 * 
 	 * @return
+	 * @throws Exception 
+	 * @throws ValidateException 
 	 */
-	public  String gerneateXML(){
+	public  String gerneateXML() throws Exception {
 		String result = "";
-		if(getvalidate()){
-			XMLGenerator gen = new XMLGenerator(this);
-			result = gen.generateXML();
+		try{
+			if(getvalidate()){
+				XMLGenerator gen = new XMLGenerator(this);
+				result = gen.generateXML();
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			throw e;
 		}
-		return result;
 		
+		return result;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
-	protected abstract ValidatorResults validate();
+	
+	public ResponseObj pasrse(String message){
+		String res_name = this.getClass().getName().replace("_Req", "_Res");
+		ResponseObj obj = null;
+		try {
+			obj = (ResponseObj)Class.forName(res_name).newInstance();
+			ParseGroup group = ParseGroup.getInstance();
+			group.parser(obj, message);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return obj;
+	}
+	
+
+	
 	
 	/**
 	 * 

@@ -9,12 +9,12 @@ import java.util.HashMap;
  */
 public class ValidatorGroup {
 	
-	private HashMap<String,ValidatorTools> vdGroup;
+	private HashMap<String,ValidatorTool> vdGroup;
 	
 	private static ValidatorGroup instance ;
 	
 	private ValidatorGroup(){
-		this.vdGroup = new HashMap<String,ValidatorTools>();
+		this.vdGroup = new HashMap<String,ValidatorTool>();
 	}
 	
 	public static ValidatorGroup getInstance(){
@@ -25,19 +25,19 @@ public class ValidatorGroup {
 	}
 	
 		
-	public HashMap<String, ValidatorTools> getVdGroup() {
+	private HashMap<String, ValidatorTool> getVdGroup() {
 		return vdGroup;
 	}
 
-	public void setVdGroup(HashMap<String, ValidatorTools> vdGroup) {
+	private void setVdGroup(HashMap<String, ValidatorTool> vdGroup) {
 		this.vdGroup = vdGroup;
 	}
 
-	ValidatorTools getValidator(String bankType,String operType){
+	ValidatorTool getValidator(String bankType,String operType){
 		String key = bankType+"_"+operType;
-		HashMap<String,ValidatorTools> map = this.instance.getVdGroup();
+		HashMap<String,ValidatorTool> map = this.instance.getVdGroup();
 		if(!map.containsKey(key)){
-			ValidatorTools tool = new ValidatorTools(bankType, operType);
+			ValidatorTool tool = new ValidatorTool(bankType, operType);
 			map.put(key, tool);
 		}
 		return map.get(key);
