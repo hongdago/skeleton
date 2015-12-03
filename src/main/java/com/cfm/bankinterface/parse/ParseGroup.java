@@ -1,6 +1,9 @@
-package com.cfm.bankinterface;
+package com.cfm.bankinterface.parse;
 
+import java.io.InputStream;
 import java.util.HashMap;
+
+import com.cfm.bankinterface.ResponseObj;
 
 /**
  * 报文解析工具组
@@ -44,10 +47,18 @@ public class ParseGroup {
 		return map.get(key);
 	}
 	
-	public void parser(ResponseObj obj, String message){
-		ParseTool tool = getParser(obj.getBankType(), obj.operType);
-		tool.parse(obj, message);
-
+	public void parser(ResponseObj obj, InputStream inputStream){
+		ParseTool tool = getParser(obj.getBankType(), obj.getOperType());
+		tool.parse(obj, inputStream);
+		
 	}
+	
+	/*public void parser(ResponseObj obj, String message){
+		try{
+			parser(obj,new ByteArrayInputStream(message.getBytes(obj.getEncoding())));
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}*/
 	
 }

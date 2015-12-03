@@ -1,11 +1,15 @@
-package com.cfm.bankinterface;
+package com.cfm.bankinterface.parse;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.digester3.Digester;
 import org.apache.commons.digester3.binder.DigesterLoader;
 import org.apache.commons.digester3.xmlrules.FromXmlRulesModule;
+
+import com.cfm.bankinterface.ResponseObj;
 
 public class ParseTool {
 	
@@ -51,13 +55,14 @@ public class ParseTool {
         } ).newDigester();
 	}
 	
-	void parse(ResponseObj obj,String message){
-		this.digester.push(obj);
+	void parse(ResponseObj obj,InputStream stream){
 		try {
-			this.digester.parse(new ByteArrayInputStream(message.getBytes(obj.getEncoding())));
+			this.digester.push(obj);
+			this.digester.parse(stream);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 	}
 	
 }

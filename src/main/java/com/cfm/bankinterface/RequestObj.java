@@ -8,6 +8,7 @@ import org.apache.velocity.VelocityContext;
 import com.cfm.bankinterface.exception.ValidateException;
 import com.cfm.bankinterface.util.FrameworkProperties;
 import com.cfm.bankinterface.util.PrintUtil;
+import com.cfm.bankinterface.validatetool.DefaultValidatorGroup;
 
 
 
@@ -90,9 +91,11 @@ public abstract class RequestObj {
 	}
 	
 	protected  boolean getvalidate() throws ValidateException{
-		ValidatorGroup toolGroup = ValidatorGroup.getInstance();
-		ValidatorTool validator = toolGroup.getValidator(bankType, operType);
-		return validator.getValidatorResult(this);
+		/*ValidatorGroup toolGroup = ValidatorGroup.getInstance();
+		return toolGroup.getValidatorResult(this);*/
+		DefaultValidatorGroup group = DefaultValidatorGroup.getInstance();
+		return group.getValidatorResult(this);
+		
 	} 
 	
 	
@@ -144,20 +147,6 @@ public abstract class RequestObj {
 		return result;
 	}
 	
-	
-	public ResponseObj pasrse(String message){
-		String res_name = this.getClass().getName().replace("_Req", "_Res");
-		ResponseObj obj = null;
-		try {
-			obj = (ResponseObj)Class.forName(res_name).newInstance();
-			ParseGroup group = ParseGroup.getInstance();
-			group.parser(obj, message);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return obj;
-	}
 	
 
 	

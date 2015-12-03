@@ -1,4 +1,4 @@
-package com.cfm.bankinterface.validatorrule;
+package com.cfm.bankinterface.validatetool.rule;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;

@@ -16,14 +16,14 @@ public class SkeletonTest {
 
 	@Test
 	public void testAppToole() {
-		assertEquals(AppTools.getDataTimeStr("yyyyMMdd"), "20151201");
+		assertEquals(AppTools.getDataTimeStr("yyyyMMdd"), "20151203");
 	}
 	
 	@Test
 	public void testFrameworkProperties(){
 		FrameworkProperties pro = FrameworkProperties.getInstance();
 		String seqno = pro.getSeqno();
-		assertEquals(pro.getTranDate(), "20151201");
+		assertEquals(pro.getTranDate(), "20151203");
 		assertEquals(seqno.length(), 32);
 	}
 
