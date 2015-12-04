@@ -1,7 +1,6 @@
 package com.cfm.bankinterface.validatetool;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,18 +44,23 @@ public class DefaultValidatorGroup {
 	private static DefaultValidatorGroup INSTANCE ;
 	
 	static{
-		String rootPath = DefaultValidatorGroup.class.getResource("").getPath();
-		System.out.println(rootPath);
-		File global = new File(rootPath + File.separator + GLOBALVLD_FILE_NAME);
-		try {
-			GLOBALRESOURCE=new ValidatorResources(new FileInputStream(global));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
+		InputStream in = DefaultValidatorGroup.class.getResourceAsStream(GLOBALVLD_FILE_NAME);
+		if(in != null){
+			try {
+				GLOBALRESOURCE=new ValidatorResources(in);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (SAXException e) {
+				e.printStackTrace();
+			}
+		}else{
+			//TODO
+			System.out.println(GLOBALVLD_FILE_NAME+" 不存在");
 		}
+		
+		
 	}
 	
 	private DefaultValidatorGroup(){
@@ -76,25 +79,19 @@ public class DefaultValidatorGroup {
 	}
 	
 	private void loadNewResource(RequestObj obj) {
-		String rootPath = obj.getClass().getClassLoader().getResource("").getPath();
-		File ruleFile = new File(rootPath+File.separator + obj.getBankType() + File.separator+obj.getBankType()+"_"+obj.getOperType()+"_"+SUFFIX+".xml");
-		InputStream in = null;
+		String resourceName = obj.getBankType() + File.separator+obj.getBankType()+"_"+obj.getOperType()+"_"+SUFFIX+".xml";
+		InputStream in = obj.getClass().getClassLoader().getResourceAsStream(resourceName);
 		DefaultValidatorResource newResource = null;
-		if(ruleFile.exists()){
+		if(in != null){
 			try{
-				in = new FileInputStream(ruleFile);
 				newResource  = new DefaultValidatorResource(in);
 			}catch(Exception e){
 				e.printStackTrace();
-			}finally{
-				if (in != null) {
-					try {
-						in.close();
-					} catch (IOException e) {
-					}
-				}
 			}
-		}	
+		}else{
+			//TODO
+			System.out.println(resourceName+" 不存在");
+		}
 		if(newResource != null){
 			GLOBALRESOURCE.addFormSet(newResource.getDefaultFormSet());
 		}
@@ -120,7 +117,7 @@ public class DefaultValidatorGroup {
 	private Object getErrmsg(String actName, Field field) {
 		ValidatorAction action = GLOBALRESOURCE.getValidatorAction(actName);
 		String message = bundle.getString(action.getMsg());
-		List infos = new ArrayList();
+		List<String> infos = new ArrayList<String>();
 		Pattern pattern = Pattern.compile("\\{[0-3]\\}");  
 		Matcher matcher = pattern.matcher(message);   
 		while(matcher.find()){
