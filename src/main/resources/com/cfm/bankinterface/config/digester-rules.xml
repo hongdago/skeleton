@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE digester-rules PUBLIC "-//Apache Commons //DTD digester-rules XML V1.0//EN"
+        "http://commons.apache.org/digester/dtds/digester-rules-3.0.dtd">
+<digester-rules>
+    <pattern value="config-info">
+        <pattern value="server">
+            <pattern value="linkinfo">
+                <object-create-rule classname="com.cfm.bankinterface.config.LinkInfo"/>
+                <set-properties-rule/>
+                <set-next-rule methodname="addLinkInfo"/>
+                <pattern value="reqURL">
+                    <object-create-rule classname="com.cfm.bankinterface.config.ReqURL"/>
+                    <set-properties-rule/>
+                    <pattern value="entry">
+                        <call-method-rule methodname="addParam" paramcount="2"/>
+                        <call-param-rule paramnumber="0" attrname="key"/>
+                        <call-param-rule paramnumber="1"/>
+                    </pattern>
+                    <set-next-rule methodname="setReqURL"/>
+                </pattern>
+            </pattern>
+            <pattern value="exclude">
+                <object-create-rule classname="java.util.HashMap"/>
+                <set-next-rule methodname="setExcludLinkInfos"/>
+                <pattern value="entry">
+                    <call-method-rule methodname="put" paramcount="2"/>
+                    <call-param-rule paramnumber="0" attrname="class"/>
+                    <call-param-rule paramnumber="1"/>
+                </pattern>
+            </pattern>
+        </pattern>
+        <pattern value="extra-info">
+            <object-create-rule classname="java.util.HashMap"/>
+            <set-next-rule methodname="setExtraInfo"/>
+            <pattern value="entry">
+                <call-method-rule methodname="put" paramcount="2"/>
+                <call-param-rule paramnumber="0" attrname="key"/>
+                <call-param-rule paramnumber="1"/>
+            </pattern>
+        </pattern>
+    </pattern>
+</digester-rules>

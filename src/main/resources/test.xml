@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-info>
+    <server>
+        <linkinfo name="default" schema="http" host="127.0.0.1" port="448">
+            <reqURL path="/adafdafd">
+                <entry key="userId">dahong</entry>
+                <entry key="packageid">{req.id}</entry>
+            </reqURL>
+        </linkinfo>
+        <linkinfo name="sign" schema="http" host="127.0.0.1" port="449"></linkinfo>
+        <exclude>
+            <entry class="ICBC_QCBReq">sign</entry>
+            <entry class="ICBC_QHBReq">sign</entry>
+        </exclude>
+    </server>
+    <extra-info>
+        <entry key="lgnnme">Dahong</entry>
+        <entry key="datatype">2</entry>
+    </extra-info>
+</config-info>

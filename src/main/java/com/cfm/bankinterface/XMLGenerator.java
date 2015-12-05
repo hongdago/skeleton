@@ -29,6 +29,7 @@ public class XMLGenerator {
 		VelocityContext ctx = new VelocityContext();
 		StringWriter writer = new StringWriter();
 		Template template = ve.getTemplate(obj.getTemplatePath());
+		template.setEncoding(obj.getEncoding());
 		obj.setValue(ctx);
 		template.merge(ctx, writer);
 		return writer.toString();
